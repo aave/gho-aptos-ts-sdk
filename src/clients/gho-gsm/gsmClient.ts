@@ -219,6 +219,47 @@ export class GsmClient extends AptosContractWrapperBaseClass {
   }
 
   /**
+   * Validates if the minAmount of underlying asset is achievable given the maxGhoAmount to spend.
+   * This is useful for frontend validation before submitting a transaction.
+   *
+   * @param gsmAddress The address of the GSM
+   * @param minAmount The minimum amount of underlying asset user expects to receive
+   * @param maxGhoAmount The maximum amount of GHO user is willing to spend
+   * @returns A promise that resolves to a validation result object containing:
+   *   - isValid: boolean indicating if the trade is valid
+   */
+  public async validateBuyAsset(
+    gsmAddress: AccountAddress,
+    minAmount: bigint,
+    maxGhoAmount: bigint,
+  ): Promise<{
+    isValid: boolean;
+  }> {
+    try {
+      // Get the actual asset amount user will receive for the given GHO amount
+      const calculation = await this.getAssetAmountForBuyAsset(
+        gsmAddress,
+        maxGhoAmount,
+      );
+
+      const expectedAssetAmount = calculation.assetAmount;
+      const totalGhoWithFee = calculation.ghoAmount;
+
+      const hasEnoughAsset = expectedAssetAmount >= minAmount;
+      const isWithinBudget = totalGhoWithFee <= maxGhoAmount;
+      const isValid = hasEnoughAsset && isWithinBudget;
+
+      return {
+        isValid,
+      };
+    } catch (error) {
+      return {
+        isValid: false,
+      };
+    }
+  }
+
+  /**
    * Allows users to sell underlying assets for GHO tokens.
    * @param gsmAddress The address of the GSM to sell to
    * @param maxAmount The maximum amount of underlying asset to sell (in underlying asset units)
@@ -241,6 +282,45 @@ export class GsmClient extends AptosContractWrapperBaseClass {
         receiver.toString(),
       ],
     );
+  }
+
+  /**
+   * Validates if the minGhoAmount is achievable given the maxAmount of underlying asset to sell.
+   * This is useful for frontend validation before submitting a transaction.
+   *
+   * @param gsmAddress The address of the GSM
+   * @param maxAmount The maximum amount of underlying asset user wants to sell
+   * @param minGhoAmount The minimum amount of GHO user expects to receive
+   * @returns A promise that resolves to a validation result object containing:
+   *   - isValid: boolean indicating if the trade is valid
+   */
+  public async validateSellAsset(
+    gsmAddress: AccountAddress,
+    maxAmount: bigint,
+    minGhoAmount: bigint,
+  ): Promise<{
+    isValid: boolean;
+  }> {
+    try {
+      // Get the actual GHO amount user will receive for the given asset amount
+      const calculation = await this.getGhoAmountForSellAsset(
+        gsmAddress,
+        maxAmount,
+      );
+
+      const expectedGhoAmount = calculation.ghoAmount;
+
+      // Validate: expected GHO amount should be >= minimum requested
+      const isValid = expectedGhoAmount >= minGhoAmount;
+
+      return {
+        isValid,
+      };
+    } catch (error) {
+      return {
+        isValid: false,
+      };
+    }
   }
 
   /**
