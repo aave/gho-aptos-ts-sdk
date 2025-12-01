@@ -6,6 +6,6 @@
     "excludeExternals": true,
     "includeVersion": true,
     "hideGenerator": true,
-    "name": "@aave/aave-v3-aptos-ts-sdk",
+    "name": "@aave/gho-aptos-ts-sdk",
     "tsconfig": "tsconfig.json"
   }

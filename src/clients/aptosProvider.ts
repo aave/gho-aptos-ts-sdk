@@ -64,16 +64,6 @@ export enum GHO_PROFILES {
   GHO = "gho",
   GHO_ACL = "gho_acl",
   GHO_CONFIG = "gho_config",
-  AAVE_MOCK_UNDERLYINGS = "aave_mock_underlyings",
-  AAVE_ACL = "aave_acl",
-  AAVE_CONFIG = "aave_config",
-  AAVE_ORACLE = "aave_oracle",
-  AAVE_POOL = "aave_pool",
-  AAVE_LARGE_PACKAGES = "aave_large_packages",
-  AAVE_MATH = "aave_math",
-  AAVE_DATA = "aave_data",
-  AAVE_DATA_FEEDS = "data_feeds",
-  AAVE_PLATFORM = "platform",
   DEFAULT_FUNDER = "default",
   FACILITATOR_MANAGER = "facilitator_manager",
   BUCKET_MANAGER = "bucket_manager",
@@ -161,13 +151,6 @@ export class GhoProvider {
    *     GHO: '0x...',
    *     GHO_ACL: '0x...',
    *     GHO_CONFIG: '0x...',
-   *     AAVE_MOCK_UNDERLYINGS: '0x...',
-   *     AAVE_ACL: '0x...',
-   *     AAVE_CONFIG: '0x...',
-   *     AAVE_ORACLE: '0x...',
-   *     AAVE_POOL: '0x...',
-   *     AAVE_DATA: '0x...',
-   *     AAVE_MATH: '0x...'
    *   }
    * };
    * const ghoProvider = GhoProvider.fromConfig(config);
@@ -213,14 +196,6 @@ export class GhoProvider {
    * - `GHO_PRIVATE_KEY`: Private key for GHO profile.
    * - `GHO_ACL_PRIVATE_KEY`: Private key for GHO_ACL profile.
    * - `GHO_CONFIG_PRIVATE_KEY`: Private key for GHO_CONFIG profile.
-   * - `AAVE_MOCK_UNDERLYING_TOKENS_PRIVATE_KEY`: Private key for UNDERLYING_TOKENS profile.
-   * - `AAVE_ACL_PRIVATE_KEY`: Private key for AAVE_ACL profile.
-   * - `AAVE_CONFIG_PRIVATE_KEY`: Private key for AAVE_CONFIG profile.
-   * - `AAVE_ORACLE_PRIVATE_KEY`: Private key for AAVE_ORACLE profile.
-   * - `AAVE_POOL_PRIVATE_KEY`: Private key for AAVE_POOL profile.
-   * - `AAVE_LARGE_PACKAGES_PRIVATE_KEY`: Private key for AAVE_LARGE_PACKAGES profile.
-   * - `AAVE_MATH_PRIVATE_KEY`: Private key for AAVE_MATH profile.
-   * - `AAVE_DATA_PRIVATE_KEY`: Private key for AAVE_DATA profile.
    * - `DEFAULT_FUNDER_PRIVATE_KEY`: Private key for DEFAULT_FUNDER profile.
    * - `FACILITATOR_MANAGER_PRIVATE_KEY`: Private key for FACILITATOR_MANAGER profile.
    * - `BUCKET_MANAGER_PRIVATE_KEY`: Private key for BUCKET_MANAGER profile.
@@ -290,83 +265,6 @@ export class GhoProvider {
       ghoProvider,
       GHO_PROFILES.GHO_CONFIG,
       process.env.GHO_CONFIG_PRIVATE_KEY,
-    );
-
-    // AAVE-related profiles (inherited from base AAVE)
-    if (!process.env.AAVE_MOCK_UNDERLYING_TOKENS_PRIVATE_KEY) {
-      throw new Error(
-        "Env variable AAVE_MOCK_UNDERLYING_TOKENS_PRIVATE_KEY does not exist",
-      );
-    }
-    addProfilePkey(
-      ghoProvider,
-      GHO_PROFILES.AAVE_MOCK_UNDERLYINGS,
-      process.env.AAVE_MOCK_UNDERLYING_TOKENS_PRIVATE_KEY,
-    );
-
-    if (!process.env.AAVE_ACL_PRIVATE_KEY) {
-      throw new Error("Env variable AAVE_ACL_PRIVATE_KEY does not exist");
-    }
-    addProfilePkey(
-      ghoProvider,
-      GHO_PROFILES.AAVE_ACL,
-      process.env.AAVE_ACL_PRIVATE_KEY,
-    );
-
-    if (!process.env.AAVE_CONFIG_PRIVATE_KEY) {
-      throw new Error("Env variable AAVE_CONFIG_PRIVATE_KEY does not exist");
-    }
-    addProfilePkey(
-      ghoProvider,
-      GHO_PROFILES.AAVE_CONFIG,
-      process.env.AAVE_CONFIG_PRIVATE_KEY,
-    );
-
-    if (!process.env.AAVE_ORACLE_PRIVATE_KEY) {
-      throw new Error("Env variable AAVE_ORACLE_PRIVATE_KEY does not exist");
-    }
-    addProfilePkey(
-      ghoProvider,
-      GHO_PROFILES.AAVE_ORACLE,
-      process.env.AAVE_ORACLE_PRIVATE_KEY,
-    );
-
-    if (!process.env.AAVE_POOL_PRIVATE_KEY) {
-      throw new Error("Env variable AAVE_POOL_PRIVATE_KEY does not exist");
-    }
-    addProfilePkey(
-      ghoProvider,
-      GHO_PROFILES.AAVE_POOL,
-      process.env.AAVE_POOL_PRIVATE_KEY,
-    );
-
-    if (!process.env.AAVE_LARGE_PACKAGES_PRIVATE_KEY) {
-      throw new Error(
-        "Env variable AAVE_LARGE_PACKAGES_PRIVATE_KEY does not exist",
-      );
-    }
-    addProfilePkey(
-      ghoProvider,
-      GHO_PROFILES.AAVE_LARGE_PACKAGES,
-      process.env.AAVE_LARGE_PACKAGES_PRIVATE_KEY,
-    );
-
-    if (!process.env.AAVE_MATH_PRIVATE_KEY) {
-      throw new Error("Env variable AAVE_MATH_PRIVATE_KEY does not exist");
-    }
-    addProfilePkey(
-      ghoProvider,
-      GHO_PROFILES.AAVE_MATH,
-      process.env.AAVE_MATH_PRIVATE_KEY,
-    );
-
-    if (!process.env.AAVE_DATA_PRIVATE_KEY) {
-      throw new Error("Env variable AAVE_DATA_PRIVATE_KEY does not exist");
-    }
-    addProfilePkey(
-      ghoProvider,
-      GHO_PROFILES.AAVE_DATA,
-      process.env.AAVE_DATA_PRIVATE_KEY,
     );
 
     if (!process.env.DEFAULT_FUNDER_PRIVATE_KEY) {
@@ -782,55 +680,6 @@ export class GhoProvider {
     return this.getProfileAccountByName(
       GHO_PROFILES.BURN_MINT_TOKEN_POOL_OWNER,
     );
-  }
-
-  // ──────────────────────────────────────────────────────────────────────────────
-  // AAVE-inherited Profile Getters
-  // ──────────────────────────────────────────────────────────────────────────────
-
-  /**
-   * Retrieves the Oracle profile account.
-   *
-   * @returns {Ed25519Account} The Oracle profile account.
-   */
-  public getOracleProfileAccount(): Ed25519Account {
-    return this.getProfileAccountByName(GHO_PROFILES.AAVE_ORACLE);
-  }
-
-  /**
-   * Retrieves the Pool profile account.
-   *
-   * @returns {Ed25519Account} The Pool profile account.
-   */
-  public getPoolProfileAccount(): Ed25519Account {
-    return this.getProfileAccountByName(GHO_PROFILES.AAVE_POOL);
-  }
-
-  /**
-   * Retrieves the Underlying Tokens profile account.
-   *
-   * @returns {Ed25519Account} The Underlying Tokens profile account.
-   */
-  public getUnderlyingTokensProfileAccount(): Ed25519Account {
-    return this.getProfileAccountByName(GHO_PROFILES.AAVE_MOCK_UNDERLYINGS);
-  }
-
-  /**
-   * Retrieves the AAVE ACL profile account.
-   *
-   * @returns {Ed25519Account} The AAVE ACL profile account.
-   */
-  public getAaveAclProfileAccount(): Ed25519Account {
-    return this.getProfileAccountByName(GHO_PROFILES.AAVE_ACL);
-  }
-
-  /**
-   * Retrieves the Data profile account.
-   *
-   * @returns {Ed25519Account} The Data profile account.
-   */
-  public getDataProfileAccount(): Ed25519Account {
-    return this.getProfileAccountByName(GHO_PROFILES.AAVE_DATA);
   }
 
   /**
