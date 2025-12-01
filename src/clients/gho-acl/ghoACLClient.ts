@@ -3,9 +3,9 @@ import {
   CommittedTransactionResponse,
   Ed25519Account,
 } from "@aptos-labs/ts-sdk";
-import { AptosContractWrapperBaseClass } from "./baseClass";
-import { GhoAclManagerContract } from "../contracts/ghoACLContract";
-import { GhoProvider } from "./aptosProvider";
+import { AptosContractWrapperBaseClass } from "../baseClass";
+import { GhoAclManagerContract } from "../../contracts/gho-acl/ghoACLContract";
+import { GhoProvider } from "../aptosProvider";
 
 // Custom types for views
 export type RoleDetails = {

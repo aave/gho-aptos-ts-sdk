@@ -1,5 +1,5 @@
 import { MoveFunctionId } from "@aptos-labs/ts-sdk";
-import { GHO_PROFILES, GhoProvider } from "../clients/aptosProvider";
+import { GHO_PROFILES, GhoProvider } from "../../clients/aptosProvider";
 
 /**
  * Represents the GhoAclManagerContract interface which defines the function addresses for managing ACL (Access Control List) roles and permissions

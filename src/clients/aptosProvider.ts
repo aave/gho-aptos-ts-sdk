@@ -22,13 +22,8 @@ import YAML from "yaml";
  * @property {string} addresses.GHO - The address for GHO token module.
  * @property {string} addresses.GHO_ACL - The address for GHO ACL.
  * @property {string} addresses.GHO_CONFIG - The address for GHO configuration.
- * @property {string} addresses.AAVE_MOCK_UNDERLYINGS - The address for underlying tokens.
- * @property {string} addresses.AAVE_ACL - The address for AAVE ACL.
- * @property {string} addresses.AAVE_CONFIG - The address for AAVE configuration.
- * @property {string} addresses.AAVE_ORACLE - The address for AAVE oracle.
- * @property {string} addresses.AAVE_POOL - The address for AAVE pool.
- * @property {string} addresses.AAVE_DATA - The address for AAVE data.
- * @property {string} addresses.AAVE_MATH - The address for AAVE math.
+ * @property {string} addresses.USDT_GSM - The address for USDT GSM.
+ * @property {string} addresses.USDC_GSM - The address for USDC GSM.
  */
 export interface GhoProviderConfig {
   network: Network;

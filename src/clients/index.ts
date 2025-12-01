@@ -64,7 +64,11 @@ export {
   GsmStewardDetails,
 } from "./gho-stewards/ghoGsmStewardClient";
 
-export { GhoAclClient, RoleDetails, UserRoles } from "./ghoACLClient";
+export {
+  GhoAclClient,
+  RoleDetails,
+  UserRoles,
+} from "../clients/gho-acl/ghoACLClient";
 
 export {
   GhoTokenClient,
@@ -72,3 +76,16 @@ export {
   FacilitatorBucket,
   TokenDetails,
 } from "./gho-token/ghoTokenClient";
+
+export {
+  GhoBurnMintTokenPoolConfiguratorClient,
+  ConfigSummary,
+  TokenBucket,
+} from "./gho-ccip/ghoBurnMintTokenPoolConfiguratorClient";
+
+export {
+  GhoBurnMintTokenPoolClient,
+  TokenBucket as RateLimiterTokenBucket,
+  RemoteMapping,
+  AllowlistState,
+} from "./gho-ccip/ghoBurnMintTokenPoolClient";
