@@ -219,6 +219,76 @@ export class GsmClient extends AptosContractWrapperBaseClass {
   }
 
   /**
+   * Validates if the minAmount of underlying asset is achievable given the maxGhoAmount to spend.
+   * This is useful for frontend validation before submitting a transaction.
+   *
+   * @param gsmAddress The address of the GSM
+   * @param minAmount The minimum amount of underlying asset user expects to receive
+   * @param maxGhoAmount The maximum amount of GHO user is willing to spend
+   * @returns A promise that resolves to a validation result object containing:
+   *   - isValid: boolean indicating if the trade is valid
+   *   - reason: string explaining why validation failed (only present if isValid is false)
+   *   - expectedAssetAmount: the actual underlying asset amount user will receive
+   *   - totalGhoWithFee: the total GHO amount that will be spent (including fees)
+   *   - slippageBps: the slippage in basis points (difference between expected and actual)
+   * @throws Error with descriptive message if validation fails
+   */
+  public async validateBuyAsset(
+    gsmAddress: AccountAddress,
+    minAmount: bigint,
+    maxGhoAmount: bigint,
+  ): Promise<{
+    isValid: boolean;
+    reason?: string;
+    expectedAssetAmount: bigint;
+    totalGhoWithFee: bigint;
+    fee: bigint;
+    slippageBps: bigint;
+  }> {
+    // Get the actual asset amount user will receive for the given GHO amount
+    const calculation = await this.getAssetAmountForBuyAsset(
+      gsmAddress,
+      maxGhoAmount,
+    );
+
+    const expectedAssetAmount = calculation.assetAmount;
+    const totalGhoWithFee = calculation.ghoAmount;
+    const fee = calculation.fee;
+
+    // Calculate slippage in basis points
+    // Slippage = (minAmount - expectedAssetAmount) / minAmount * 10000
+    const slippageBps =
+      minAmount > 0n
+        ? ((minAmount - expectedAssetAmount) * 10000n) / minAmount
+        : 0n;
+
+    const hasEnoughAsset = expectedAssetAmount >= minAmount;
+    const isWithinBudget = totalGhoWithFee <= maxGhoAmount;
+
+    if (!hasEnoughAsset) {
+      const slippagePercent = Number(slippageBps) / 100;
+      const reason = `Expected ${minAmount.toString()} underlying asset, but will only receive ${expectedAssetAmount.toString()} (${slippagePercent.toFixed(2)}% slippage)`;
+      throw new Error(reason);
+    }
+
+    if (!isWithinBudget) {
+      const excessBps =
+        ((totalGhoWithFee - maxGhoAmount) * 10000n) / maxGhoAmount;
+      const excessPercent = Number(excessBps) / 100;
+      const reason = `Expected to spend max ${maxGhoAmount.toString()} GHO, but will need ${totalGhoWithFee.toString()} GHO (${excessPercent.toFixed(2)}% over budget)`;
+      throw new Error(reason);
+    }
+
+    return {
+      isValid: true,
+      expectedAssetAmount,
+      totalGhoWithFee,
+      fee,
+      slippageBps,
+    };
+  }
+
+  /**
    * Allows users to sell underlying assets for GHO tokens.
    * @param gsmAddress The address of the GSM to sell to
    * @param maxAmount The maximum amount of underlying asset to sell (in underlying asset units)
@@ -241,6 +311,67 @@ export class GsmClient extends AptosContractWrapperBaseClass {
         receiver.toString(),
       ],
     );
+  }
+
+  /**
+   * Validates if the minGhoAmount is achievable given the maxAmount of underlying asset to sell.
+   * This is useful for frontend validation before submitting a transaction.
+   *
+   * @param gsmAddress The address of the GSM
+   * @param maxAmount The maximum amount of underlying asset user wants to sell
+   * @param minGhoAmount The minimum amount of GHO user expects to receive
+   * @returns A promise that resolves to a validation result object containing:
+   *   - isValid: boolean indicating if the trade is valid
+   *   - reason: string explaining why validation failed (only present if isValid is false)
+   *   - expectedGhoAmount: the actual GHO amount user will receive (after fees)
+   *   - grossGhoAmount: the GHO amount before fees are deducted
+   *   - fee: the fee amount that will be charged
+   *   - slippageBps: the slippage in basis points (difference between expected and actual)
+   * @throws Error with descriptive message if validation fails
+   */
+  public async validateSellAsset(
+    gsmAddress: AccountAddress,
+    maxAmount: bigint,
+    minGhoAmount: bigint,
+  ): Promise<{
+    isValid: boolean;
+    reason?: string;
+    expectedGhoAmount: bigint;
+    grossGhoAmount: bigint;
+    fee: bigint;
+    slippageBps: bigint;
+  }> {
+    // Get the actual GHO amount user will receive for the given asset amount
+    const calculation = await this.getGhoAmountForSellAsset(
+      gsmAddress,
+      maxAmount,
+    );
+
+    const expectedGhoAmount = calculation.ghoAmount;
+    const grossGhoAmount = calculation.grossGho;
+    const fee = calculation.fee;
+
+    // Calculate slippage in basis points
+    // Slippage = (minGhoAmount - expectedGhoAmount) / minGhoAmount * 10000
+    const slippageBps =
+      minGhoAmount > 0n
+        ? ((minGhoAmount - expectedGhoAmount) * 10000n) / minGhoAmount
+        : 0n;
+
+    // Validate: expected GHO amount should be >= minimum requested
+    if (expectedGhoAmount < minGhoAmount) {
+      const slippagePercent = Number(slippageBps) / 100;
+      const reason = `Expected ${minGhoAmount.toString()} GHO, but will only receive ${expectedGhoAmount.toString()} GHO (${slippagePercent.toFixed(2)}% slippage)`;
+      throw new Error(reason);
+    }
+
+    return {
+      isValid: true,
+      expectedGhoAmount,
+      grossGhoAmount,
+      fee,
+      slippageBps,
+    };
   }
 
   /**
@@ -834,5 +965,46 @@ export class GsmClient extends AptosContractWrapperBaseClass {
       usage,
       limit,
     };
+  }
+
+  /**
+   * Gets the underlying asset balance for a given user address.
+   * This is useful for validating if a user has enough balance before selling assets.
+   *
+   * @param gsmAddress The address of the GSM
+   * @param userAddress The address of the user whose balance to check
+   * @returns A promise that resolves to the user's underlying asset balance
+   */
+  public async getUnderlyingAssetBalanceForUser(
+    gsmAddress: AccountAddress,
+    userAddress: AccountAddress,
+  ): Promise<bigint> {
+    // First get the underlying asset address from the GSM
+    const underlyingAsset = await this.getUnderlyingAsset(gsmAddress);
+
+    // Get the user's balance of the underlying asset
+    try {
+      const balance = await this.aptosProvider
+        .getAptos()
+        .getCurrentFungibleAssetBalances({
+          options: {
+            where: {
+              owner_address: { _eq: userAddress.toString() },
+              asset_type: { _eq: underlyingAsset.toString() },
+            },
+          },
+        });
+
+      if (balance && balance.length > 0) {
+        return BigInt(balance[0].amount);
+      }
+      // User has no balance of this asset
+      return 0n;
+    } catch (error) {
+      // Network or API error
+      throw new Error(
+        `Failed to fetch underlying asset balance for user ${userAddress.toString()}: ${error.message}`,
+      );
+    }
   }
 }
