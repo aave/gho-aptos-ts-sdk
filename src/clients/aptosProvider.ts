@@ -32,8 +32,14 @@ export interface GhoProviderConfig {
     GHO: AccountAddress;
     GHO_ACL: AccountAddress;
     GHO_CONFIG: AccountAddress;
+    USDT_GSM: AccountAddress;
+    USDC_GSM: AccountAddress;
+    GHO_RESERVE: AccountAddress;
+    GHO_DIRECT_MINTER: AccountAddress;
+    GHO_CCIP_TOKEN_POOL: AccountAddress;
   };
   assets?: {
+    GHO_TOKEN: AccountAddress;
     USDC: AccountAddress;
     USDT: AccountAddress;
   };
