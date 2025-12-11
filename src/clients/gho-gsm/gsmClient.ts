@@ -32,8 +32,8 @@ export type TradeCalculation = {
 export type GsmDetails = {
   config: GsmConfiguration;
   accruedFees: bigint;
-  feeStrategy: string;
-  priceStrategy: string;
+  feeStrategy: AccountAddress;
+  priceStrategy: AccountAddress;
   feeStore: AccountAddress;
   used: bigint;
   usage: { limit: bigint; usage: bigint };
@@ -652,14 +652,20 @@ export class GsmClient extends AptosContractWrapperBaseClass {
    * @param gsmAddress The address of the GSM
    * @returns A promise that resolves to the fee strategy object address.
    */
-  public async getFeeStrategyObject(
+  public async getFeeStrategyAddress(
     gsmAddress: AccountAddress,
-  ): Promise<string> {
+  ): Promise<AccountAddress> {
     const [resp] = await this.callViewMethod(
       this.GsmManagerContract.getFeeStrategyObjectFuncAddr,
       [gsmAddress],
     );
-    return resp as string;
+    // The response is an object with structure { inner: "0x..." }
+    // Extract the inner address and convert to AccountAddress
+    if (typeof resp === "object" && resp !== null && "inner" in resp) {
+      return AccountAddress.fromString((resp as any).inner);
+    }
+    // Fallback: if it's already a string, convert directly
+    return AccountAddress.fromString(resp as string);
   }
 
   /**
@@ -667,14 +673,20 @@ export class GsmClient extends AptosContractWrapperBaseClass {
    * @param gsmAddress The address of the GSM
    * @returns A promise that resolves to the price strategy object address.
    */
-  public async getPriceStrategyObject(
+  public async getPriceStrategyAddress(
     gsmAddress: AccountAddress,
-  ): Promise<string> {
+  ): Promise<AccountAddress> {
     const [resp] = await this.callViewMethod(
       this.GsmManagerContract.getPriceStrategyObjectFuncAddr,
       [gsmAddress],
     );
-    return resp as string;
+    // The response is an object with structure { inner: "0x..." }
+    // Extract the inner address and convert to AccountAddress
+    if (typeof resp === "object" && resp !== null && "inner" in resp) {
+      return AccountAddress.fromString((resp as any).inner);
+    }
+    // Fallback: if it's already a string, convert directly
+    return AccountAddress.fromString(resp as string);
   }
 
   /**
@@ -935,12 +947,12 @@ export class GsmClient extends AptosContractWrapperBaseClass {
     const isSeized = await this.getIsSeized(gsmAddress);
     const canSwap = await this.canSwap(gsmAddress);
     const accruedFees = await this.getAccruedFees(gsmAddress);
-    const feeStrategy = await this.getFeeStrategyObject(gsmAddress);
-    const priceStrategy = await this.getPriceStrategyObject(gsmAddress);
+    const feeStrategy = await this.getFeeStrategyAddress(gsmAddress);
+    const priceStrategy = await this.getPriceStrategyAddress(gsmAddress);
     const feeStore = await this.getFeeStore(gsmAddress);
     const used = await this.getUsed(gsmAddress);
     const usage = await this.getUsage(gsmAddress);
-    const limit = await this.getLimit(gsmAddress);
+    const limit = await this.getLimit(gsmAddress); 
 
     return {
       config: {
