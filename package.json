@@ -100,7 +100,6 @@
         "ora": "^9.0.0",
         "prettier": "^3.7.3",
         "prettier-eslint": "^16.4.2",
-        "prettier-standard": "^16.4.1",
         "rimraf": "^6.1.2",
         "ts-jest": "^29.4.6",
         "ts-loader": "^9.3.0",
