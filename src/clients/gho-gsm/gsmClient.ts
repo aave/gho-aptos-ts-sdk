@@ -952,7 +952,7 @@ export class GsmClient extends AptosContractWrapperBaseClass {
     const feeStore = await this.getFeeStore(gsmAddress);
     const used = await this.getUsed(gsmAddress);
     const usage = await this.getUsage(gsmAddress);
-    const limit = await this.getLimit(gsmAddress); 
+    const limit = await this.getLimit(gsmAddress);
 
     return {
       config: {

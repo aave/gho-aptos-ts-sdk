@@ -1,0 +1,57 @@
+name: Unit tests
+
+on:
+  push:
+  workflow_call:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    permissions:
+      # Give the default GITHUB_TOKEN write permission to commit and push the changed files back to the repository.
+      contents: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref }}
+        token: ${{ github.token }}
+
+    - name: Set Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18.x
+
+    - name: Install PNPM
+      uses: pnpm/action-setup@v4
+      with:
+        version: 9
+        run_install: false
+
+    - name: Enable Corepack
+      run: corepack enable
+
+    - name: Get PNPM store directory
+      shell: bash
+      run: |
+        echo "STORE_PATH=$HOME/.local/share/pnpm/store" >> $GITHUB_ENV
+
+    - name: Setup PNPM cache
+      uses: actions/cache@v4
+      with:
+        path: ${{ env.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+
+    - name: Install dependencies
+      run: pnpm install --no-frozen-lockfile
+
+    - name: Execute unit tests
+      run: |
+        pnpm run build
+        pnpm run fmt:check
+        pnpm run test
