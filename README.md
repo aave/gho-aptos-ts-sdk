@@ -34,8 +34,3 @@ If you would like to contribute to `gho-aptos-ts-sdk`, please read the [CONTRIBU
 ## Powered By
 
 `gho-aptos-ts-sdk` is developed with love by Aave Labs
-
-## NOTE: 
-
-This repo is WIP. 
-
