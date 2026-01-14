@@ -26,33 +26,33 @@ export const DEFAULT_TESTNET_CONFIG: GhoProviderConfig = {
   network: Network.TESTNET,
   addresses: {
     GHO: AccountAddress.fromString(
-      "0x61409238c26190bf5297ebd427cd9170de0cf8afd5e90ddc11d7ca4b4d583b58",
+      "0xbeb022c05921bfcead4ca06b6d6192ad1cdcecf815585b070f2ab90f9acedcf4",
     ),
     GHO_ACL: AccountAddress.fromString(
-      "0x7885b4d2cc8a806f8ebdbaf58adbf580d3941d50ed59ccb403c4dc929716f059",
+      "0x1b6fb1258c1a5f2f4a88bccaed78e3a1290f8065c0393818b00e88cb819cf23c",
     ),
     GHO_CONFIG: AccountAddress.fromString(
-      "0x4a318118c53b5a8f1037099e54d7a292353c8172a40f76dcb152e0a23e8ba381",
+      "0x70325c10b0d1f561c35e451ada5278205a14c356ade329f98663e91da2b2b503",
     ),
     USDC_GSM: AccountAddress.fromString(
-      "0xab580f821e70a4b449b42dfc6a4d7528fc34386615e4ca38d1ad2efcc30523c8",
+      "0x8f4fdbe922f22aca29225e411203248a385073ff11b8ae62aeac7b23b4618d76",
     ),
     USDT_GSM: AccountAddress.fromString(
-      "0xffd4ed5045dd95345cfd2933c61ef9c8917cfeca87ff35142ce2f9ab65aac8e8",
+      "0xc1d9bef10aefb9f5ec3bb6b09a9191f0f312f949a83bfae0f9798d92615a75a4",
     ),
     GHO_RESERVE: AccountAddress.fromString(
-      "0x2dad2b04499ec6b7ce56e9d08e4c9afe2f20fb48c0fd7b928609ea7bddfe24a4",
+      "0x26884dbde3356466390c8f3f09ae59140d59e6581dbbaa1cad9e57a2128c7377",
     ),
     GHO_DIRECT_MINTER: AccountAddress.fromString(
-      "0x8f1aa8c39cadda5d2a5e4e5771f7d85be784885fbe6bffdff4155b3c1de0df82",
+      "0x9aa7ee1fc819d96179eb09750b6ab1cd3164351c87a6fa2e52c1fc04b2dd904e",
     ),
     GHO_CCIP_TOKEN_POOL: AccountAddress.fromString(
-      "0x61409238c26190bf5297ebd427cd9170de0cf8afd5e90ddc11d7ca4b4d583b58",
+      "0x6ddc551f6ebbd036a7c669b5b8a62d8327f5b2d97bb2efbe661c46762a4ec303",
     ),
   },
   assets: {
     GHO_TOKEN: AccountAddress.fromString(
-      "0xe9e9f6d5759147867740ccdb42ac466063ac49b8213d7d010753f5406fd982bf",
+      "0xdcf0a39e62369ed293d4b1579b76957be14c5ad97649f71deb4f4dfd0a293ca3",
     ),
     USDC: AccountAddress.fromString(
       "0x69091fbab5f7d635ee7ac5098cf0c1efbe31d68fec0f2cd565e8d168daf52832",
