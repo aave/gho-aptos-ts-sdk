@@ -18,7 +18,8 @@ import {
 dotenv.config();
 
 // Testnet configuration
-const CCIP_ROUTER = "0xc748085bd02022a9696dfa2058774f92a07401208bbd34cfd0c6d0ac0287ee45";
+const CCIP_ROUTER =
+  "0xc748085bd02022a9696dfa2058774f92a07401208bbd34cfd0c6d0ac0287ee45";
 const GHO_TOKEN_ASSET = DEFAULT_TESTNET_CONFIG.assets!.GHO_TOKEN.toString();
 
 async function main() {
@@ -31,7 +32,9 @@ async function main() {
   });
 
   if (!values.receiver) {
-    console.error("❌ Usage: npx ts-node examples/test-bridge.ts --amount 0.001 --receiver <ARBITRUM_WALLET>");
+    console.error(
+      "❌ Usage: npx ts-node examples/test-bridge.ts --amount 0.001 --receiver <ARBITRUM_WALLET>",
+    );
     process.exit(1);
   }
 
@@ -71,7 +74,9 @@ async function main() {
   const ghoBalance = await bridgeClient.getGhoBalance(signer.accountAddress);
   const aptBalance = await bridgeClient.getAptBalance(signer.accountAddress);
 
-  console.log(`   GHO Balance: ${GhoBridgeClient.formatAmount(ghoBalance)} GHO`);
+  console.log(
+    `   GHO Balance: ${GhoBridgeClient.formatAmount(ghoBalance)} GHO`,
+  );
   console.log(`   APT Balance: ${(Number(aptBalance) / 1e8).toFixed(4)} APT`);
 
   if (ghoBalance === 0n) {
@@ -95,20 +100,30 @@ async function main() {
     });
 
     const feeInApt = Number(estimatedFee) / 1e8;
-    console.log(`✅ Estimated fee: ${estimatedFee} octas (${feeInApt.toFixed(6)} APT)`);
-    
+    console.log(
+      `✅ Estimated fee: ${estimatedFee} octas (${feeInApt.toFixed(6)} APT)`,
+    );
+
     // Check if user has enough APT
     if (aptBalance < estimatedFee) {
       console.error(`\n❌ Insufficient APT for bridge fees!`);
-      console.error(`   Required: ${estimatedFee} octas (${feeInApt.toFixed(6)} APT)`);
-      console.error(`   Available: ${aptBalance} octas (${(Number(aptBalance) / 1e8).toFixed(6)} APT)`);
-      console.error(`   Shortfall: ${estimatedFee - aptBalance} octas (${((Number(estimatedFee - aptBalance)) / 1e8).toFixed(6)} APT)`);
+      console.error(
+        `   Required: ${estimatedFee} octas (${feeInApt.toFixed(6)} APT)`,
+      );
+      console.error(
+        `   Available: ${aptBalance} octas (${(Number(aptBalance) / 1e8).toFixed(6)} APT)`,
+      );
+      console.error(
+        `   Shortfall: ${estimatedFee - aptBalance} octas (${(Number(estimatedFee - aptBalance) / 1e8).toFixed(6)} APT)`,
+      );
       process.exit(1);
     }
-    
+
     console.log(`✅ APT balance sufficient for fees`);
   } catch (error) {
-    console.error(`\n⚠️  Fee estimation failed (will use default): ${error.message}`);
+    console.error(
+      `\n⚠️  Fee estimation failed (will use default): ${error.message}`,
+    );
   }
 
   // 6. Validate bridge parameters
@@ -121,8 +136,12 @@ async function main() {
     });
 
     console.log("✅ Validation passed:");
-    console.log(`   Required: ${GhoBridgeClient.formatAmount(validation.requiredAmount)} GHO`);
-    console.log(`   Available: ${GhoBridgeClient.formatAmount(validation.ghoBalance)} GHO`);
+    console.log(
+      `   Required: ${GhoBridgeClient.formatAmount(validation.requiredAmount)} GHO`,
+    );
+    console.log(
+      `   Available: ${GhoBridgeClient.formatAmount(validation.ghoBalance)} GHO`,
+    );
   } catch (error) {
     console.error(`\n❌ Validation failed: ${error.message}`);
     process.exit(1);
@@ -174,21 +193,29 @@ async function main() {
     console.log(`   Hash: ${response.response.hash}`);
     console.log(`   Version: ${response.response.version}`);
     console.log(`   Gas Used: ${response.response.gas_used}`);
-    
+
     // Debug: Print all events to find CCIP message ID
-    if ('events' in response.response && Array.isArray(response.response.events) && response.response.events.length > 0) {
-      console.log(`\n📡 Transaction Events (${response.response.events.length} total):`);
+    if (
+      "events" in response.response &&
+      Array.isArray(response.response.events) &&
+      response.response.events.length > 0
+    ) {
+      console.log(
+        `\n📡 Transaction Events (${response.response.events.length} total):`,
+      );
       for (let i = 0; i < response.response.events.length; i++) {
         const event = response.response.events[i];
         console.log(`\n   Event ${i + 1}:`);
         console.log(`      Type: ${event.type}`);
-        
+
         // Always show data for all events to help debug
         try {
           const dataStr = JSON.stringify(event.data, null, 6);
           // Truncate if too long
           if (dataStr.length > 500) {
-            console.log(`      Data: ${dataStr.substring(0, 500)}... (truncated)`);
+            console.log(
+              `      Data: ${dataStr.substring(0, 500)}... (truncated)`,
+            );
           } else {
             console.log(`      Data: ${dataStr}`);
           }
@@ -199,18 +226,20 @@ async function main() {
     } else {
       console.log(`\n⚠️  No events found in transaction response`);
     }
-    
+
     // Check if we have events with CCIP message ID
-    const hasCcipMessageId = response.ccipTrackerUrl.includes('/msg/');
-    
+    const hasCcipMessageId = response.ccipTrackerUrl.includes("/msg/");
+
     console.log(`\n🔗 Links:`);
     console.log(`   Aptos Explorer: ${response.explorerUrl}`);
     if (hasCcipMessageId) {
       console.log(`   CCIP Tracker: ${response.ccipTrackerUrl} ✅`);
     } else {
-      console.log(`   CCIP Tracker: ${response.ccipTrackerUrl} (check events above for message ID)`);
+      console.log(
+        `   CCIP Tracker: ${response.ccipTrackerUrl} (check events above for message ID)`,
+      );
     }
-    
+
     console.log(`\n⏳ CCIP Processing:`);
     console.log(`   The cross-chain transfer will take 5-30 minutes.`);
     if (hasCcipMessageId) {
@@ -219,17 +248,31 @@ async function main() {
       console.log(`   View transaction events above to find CCIP message ID`);
       console.log(`   Then track at: https://ccip.chain.link/msg/<message_id>`);
     }
-    console.log(`   GHO will arrive at: ${values.receiver} on Arbitrum Sepolia`);
+    console.log(
+      `   GHO will arrive at: ${values.receiver} on Arbitrum Sepolia`,
+    );
 
     // 10. Check balances after
     console.log("\n💰 Checking balances after bridge...");
-    const ghoBalanceAfter = await bridgeClient.getGhoBalance(signer.accountAddress);
-    const aptBalanceAfter = await bridgeClient.getAptBalance(signer.accountAddress);
+    const ghoBalanceAfter = await bridgeClient.getGhoBalance(
+      signer.accountAddress,
+    );
+    const aptBalanceAfter = await bridgeClient.getAptBalance(
+      signer.accountAddress,
+    );
 
-    console.log(`   GHO Balance: ${GhoBridgeClient.formatAmount(ghoBalanceAfter)} GHO (was ${GhoBridgeClient.formatAmount(ghoBalance)})`);
-    console.log(`   APT Balance: ${(Number(aptBalanceAfter) / 1e8).toFixed(4)} APT (was ${(Number(aptBalance) / 1e8).toFixed(4)})`);
-    console.log(`   GHO Bridged: ${GhoBridgeClient.formatAmount(ghoBalance - ghoBalanceAfter)} GHO`);
-    console.log(`   APT Used: ${((Number(aptBalance) - Number(aptBalanceAfter)) / 1e8).toFixed(6)} APT`);
+    console.log(
+      `   GHO Balance: ${GhoBridgeClient.formatAmount(ghoBalanceAfter)} GHO (was ${GhoBridgeClient.formatAmount(ghoBalance)})`,
+    );
+    console.log(
+      `   APT Balance: ${(Number(aptBalanceAfter) / 1e8).toFixed(4)} APT (was ${(Number(aptBalance) / 1e8).toFixed(4)})`,
+    );
+    console.log(
+      `   GHO Bridged: ${GhoBridgeClient.formatAmount(ghoBalance - ghoBalanceAfter)} GHO`,
+    );
+    console.log(
+      `   APT Used: ${((Number(aptBalance) - Number(aptBalanceAfter)) / 1e8).toFixed(6)} APT`,
+    );
 
     console.log("\n✨ Bridge test completed successfully!\n");
   } catch (error) {

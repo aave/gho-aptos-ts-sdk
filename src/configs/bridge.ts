@@ -70,9 +70,12 @@ export interface BridgeNetworkConfig {
 export const MAINNET_GHO_TOKEN_ADDRESSES: Readonly<
   Record<SupportedMainnetChain, string>
 > = {
-  [SupportedMainnetChain.ETHEREUM]: "0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f",
-  [SupportedMainnetChain.ARBITRUM]: "0x7dfF72693f6A4149b17e7C6314655f6A9F7c8B33",
-  [SupportedMainnetChain.AVALANCHE]: "0xfc421aD3C883Bf9E7C4f42dE845C4e4405799e73",
+  [SupportedMainnetChain.ETHEREUM]:
+    "0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f",
+  [SupportedMainnetChain.ARBITRUM]:
+    "0x7dfF72693f6A4149b17e7C6314655f6A9F7c8B33",
+  [SupportedMainnetChain.AVALANCHE]:
+    "0xfc421aD3C883Bf9E7C4f42dE845C4e4405799e73",
   [SupportedMainnetChain.BASE]: "0x6Bb7a212910682DCFdbd5BCBb3e28FB4E8da10Ee",
   [SupportedMainnetChain.GNOSIS]: "0xfc421ad3c883bf9e7c4f42de845c4e4405799e73",
   [SupportedMainnetChain.INK]: "0xfc421aD3C883Bf9E7C4f42dE845C4e4405799e73",
@@ -85,9 +88,12 @@ export const MAINNET_GHO_TOKEN_ADDRESSES: Readonly<
 export const MAINNET_CCIP_TOKEN_POOLS: Readonly<
   Record<SupportedMainnetChain, string>
 > = {
-  [SupportedMainnetChain.ETHEREUM]: "0x06179f7C1be40863405f374E7f5F8806c728660A",
-  [SupportedMainnetChain.ARBITRUM]: "0xB94Ab28c6869466a46a42abA834ca2B3cECCA5eB",
-  [SupportedMainnetChain.AVALANCHE]: "0xDe6539018B095353A40753Dc54C91C68c9487D4E",
+  [SupportedMainnetChain.ETHEREUM]:
+    "0x06179f7C1be40863405f374E7f5F8806c728660A",
+  [SupportedMainnetChain.ARBITRUM]:
+    "0xB94Ab28c6869466a46a42abA834ca2B3cECCA5eB",
+  [SupportedMainnetChain.AVALANCHE]:
+    "0xDe6539018B095353A40753Dc54C91C68c9487D4E",
   [SupportedMainnetChain.BASE]: "0x98217A06721Ebf727f2C8d9aD7718ec28b7aAe34",
   [SupportedMainnetChain.GNOSIS]: "0xDe6539018B095353A40753Dc54C91C68c9487D4E",
   [SupportedMainnetChain.INK]: "0xDe6539018B095353A40753Dc54C91C68c9487D4E",
@@ -98,15 +104,18 @@ export const MAINNET_CCIP_TOKEN_POOLS: Readonly<
  * Default testnet bridge configuration
  */
 export const DEFAULT_TESTNET_BRIDGE_CONFIG: BridgeNetworkConfig = {
-  ccipRouterAddress: DEFAULT_TESTNET_CONFIG.addresses.GHO_CCIP_TOKEN_POOL.toString(),
+  ccipRouterAddress:
+    DEFAULT_TESTNET_CONFIG.addresses.GHO_CCIP_TOKEN_POOL.toString(),
   ghoTokenAddress: DEFAULT_TESTNET_CONFIG.addresses.GHO.toString(),
   aptFeeTokenAddress: "0xa", // APT metadata address
   chainSelectors: TESTNET_CHAIN_SELECTORS as Record<string, bigint>,
   destinationGhoTokens: {
-    [SupportedTestnetChain.ARBITRUM_SEPOLIA]: "0xb13Cfa6f8B2Eed2C37fB00fF0c1A59807C585810",
+    [SupportedTestnetChain.ARBITRUM_SEPOLIA]:
+      "0xb13Cfa6f8B2Eed2C37fB00fF0c1A59807C585810",
   } as Record<string, string>,
   destinationCcipTokenPools: {
-    [SupportedTestnetChain.ARBITRUM_SEPOLIA]: "0xb4A1e95A2FA7ed83195C6c16660fCCa720163FF6",
+    [SupportedTestnetChain.ARBITRUM_SEPOLIA]:
+      "0xb4A1e95A2FA7ed83195C6c16660fCCa720163FF6",
   } as Record<string, string>,
 };
 
@@ -115,7 +124,8 @@ export const DEFAULT_TESTNET_BRIDGE_CONFIG: BridgeNetworkConfig = {
  * Note: Update ccipRouterAddress and ghoTokenAddress when Aptos mainnet is deployed
  */
 export const DEFAULT_MAINNET_BRIDGE_CONFIG: BridgeNetworkConfig = {
-  ccipRouterAddress: "0x20f808de3375db34d17cc946ec6b43fc26962f6afa125182dc903359756caf6b",
+  ccipRouterAddress:
+    "0x20f808de3375db34d17cc946ec6b43fc26962f6afa125182dc903359756caf6b",
   ghoTokenAddress: "0x0", // TODO: Update when GHO on Aptos mainnet deployed
   aptFeeTokenAddress: "0xa", // APT metadata address
   chainSelectors: MAINNET_CHAIN_SELECTORS as Record<string, bigint>,

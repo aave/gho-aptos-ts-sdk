@@ -67,23 +67,23 @@ export interface BridgeValidationResult {
 /**
  * Represents the GhoBridgeClient class which provides methods to bridge GHO tokens from Aptos
  * to EVM-compatible chains using Chainlink's Cross-Chain Interoperability Protocol (CCIP).
- * 
+ *
  * @remarks
  * This client extends AptosContractWrapperBaseClass and provides a comprehensive set of methods for
  * managing cross-chain GHO transfers, including bridging operations, transaction simulation, amount
  * validation, and balance checking.
- * 
+ *
  * The client handles:
  * - Encoding of CCIP extra arguments (V2 format)
  * - EVM address formatting (padding to 32 bytes)
  * - Amount conversion utilities (6 decimal places for GHO)
  * - Transaction building and submission
  * - Pre-bridge validation and simulation
- * 
+ *
  * The client can be instantiated in two ways:
  * 1. Using the constructor directly with a provider, signer, and configuration
  * 2. Using the static buildWithDefaults method which automatically configures the client with default settings
- * 
+ *
  * @example
  * ```typescript
  * // Using buildWithDefaults
@@ -95,32 +95,32 @@ export interface BridgeValidationResult {
  *   AccountAddress.fromString(CCIP_ROUTER_ADDRESS),
  *   AccountAddress.fromString(GHO_TOKEN_ADDRESS)
  * );
- * 
+ *
  * // Using constructor directly
  * const bridgeClient = new GhoBridgeClient(provider, signer, {
  *   ccipRouterAddress: AccountAddress.fromString("0x..."),
  *   ghoTokenAddress: AccountAddress.fromString("0x..."),
  *   aptFeeTokenAddress: AccountAddress.fromString("0xa"),
  * });
- * 
+ *
  * // Validate before bridging
  * const validation = await bridgeClient.validateBridge({
  *   amount: GhoBridgeClient.parseAmount("1.0"),
  *   destinationChain: SupportedChain.ARBITRUM_SEPOLIA,
  *   receiverAddress: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
  * });
- * 
+ *
  * // Bridge GHO tokens
  * const response = await bridgeClient.bridgeGHO({
  *   amount: GhoBridgeClient.parseAmount("1.0"),
  *   destinationChain: SupportedChain.ARBITRUM_SEPOLIA,
  *   receiverAddress: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
  * });
- * 
+ *
  * console.log(`Transaction: ${response.explorerUrl}`);
  * console.log(`Track CCIP: ${response.ccipTrackerUrl}`);
  * ```
- * 
+ *
  * @param provider - The GhoProvider instance used to interact with the Aptos blockchain.
  * @param signer - The Ed25519Account signer for transaction signing.
  * @param config - The bridge configuration containing router and token addresses.
@@ -143,11 +143,11 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
   ) {
     super(provider, signer);
     this.config = config;
-    
+
     // Cache network type for efficiency
     const network = provider.getNetwork();
     this.isMainnet = this.detectMainnet(network);
-    
+
     // Dynamically select chain selectors based on network (immutable)
     this.chainSelectors = this.isMainnet
       ? (MAINNET_CHAIN_SELECTORS as Record<string, bigint>)
@@ -161,12 +161,12 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
    */
   private detectMainnet(network: Network): boolean {
     const networkStr = network.toString().toLowerCase();
-    return networkStr.includes('mainnet');
+    return networkStr.includes("mainnet");
   }
 
   /**
    * Creates a GhoBridgeClient with default configuration.
-   * 
+   *
    * @param provider - The GhoProvider instance used to interact with the Aptos blockchain.
    * @param signer - The Ed25519Account for signing transactions.
    * @param ccipRouterAddress - The address of the CCIP router contract on Aptos.
@@ -194,16 +194,16 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
 
   /**
    * Estimates the fee required for bridging GHO tokens to a destination chain.
-   * 
+   *
    * @param params - Bridge parameters to estimate fees for.
    * @returns A promise that resolves to the estimated fee amount in APT (octas).
-   * 
+   *
    * @throws Error if the destination chain is not supported.
    * @throws Error if the fee query fails.
-   * 
+   *
    * @remarks
    * Per CCIP documentation, token-only transfers should use gasLimit = 0.
-   * 
+   *
    * @example
    * ```typescript
    * const estimatedFee = await bridgeClient.estimateBridgeFee({
@@ -239,7 +239,7 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
 
     try {
       // Query the CCIP router's get_fee function
-      const functionId: `${string}::${string}::${string}` = 
+      const functionId: `${string}::${string}::${string}` =
         `${this.config.ccipRouterAddress.toString()}::router::get_fee` as `${string}::${string}::${string}`;
 
       const [feeResult] = await this.callViewMethod(functionId, [
@@ -270,7 +270,7 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
 
   /**
    * Bridges GHO tokens from Aptos to a supported EVM chain via CCIP.
-   * 
+   *
    * @param params - Bridge parameters including amount, chain, and receiver.
    * @param params.amount - Amount of GHO to bridge in smallest units (6 decimals).
    * @param params.destinationChain - The target blockchain to bridge to.
@@ -279,11 +279,11 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
    * @param params.allowOutOfOrder - Optional flag to allow out-of-order execution (default: true).
    * @param params.data - Optional additional data payload (default: empty).
    * @returns A promise that resolves to the bridge transaction response with URLs.
-   * 
+   *
    * @throws Error if the destination chain is not supported.
    * @throws Error if the receiver address is invalid.
    * @throws Error if the transaction fails.
-   * 
+   *
    * @remarks
    * Per CCIP documentation: Token-only transfers use gasLimit = 0 and may require manual execution
    * on testnet. This is expected behavior for Aptos → EVM token bridges.
@@ -311,7 +311,9 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
     // Note: CCIP will automatically deduct this fee from the sender's APT balance
     console.log("🔍 Estimating CCIP bridge fee...");
     const requiredFee = await this.estimateBridgeFee(params);
-    console.log(`✅ Estimated fee: ${requiredFee} octas (${Number(requiredFee) / 100000000} APT)`);
+    console.log(
+      `✅ Estimated fee: ${requiredFee} octas (${Number(requiredFee) / 100000000} APT)`,
+    );
 
     // STEP 2: Check user has enough APT for fees (CCIP auto-deducts this amount)
     const aptBalance = await this.getAptBalance(this.signer.accountAddress);
@@ -329,9 +331,9 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
     const extraArgs = this.encodeExtraArgsV2(gasLimit, allowOutOfOrder);
 
     // STEP 3: Build the transaction (CCIP auto-deducts fees based on estimation)
-    const functionId: `${string}::${string}::${string}` = 
+    const functionId: `${string}::${string}::${string}` =
       `${this.config.ccipRouterAddress.toString()}::router::ccip_send` as `${string}::${string}::${string}`;
-    
+
     const functionArguments = [
       chainSelector.toString(), // Chain selector as string (matching working UI)
       Array.from(encodedReceiver), // Receiver as array (matching working UI)
@@ -344,12 +346,6 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
       Array.from(extraArgs), // Extra args as array (matching working UI)
     ];
 
-    // DEBUG: Log token address being passed to CCIP
-    console.log("🔍 DEBUG - Token address being passed to CCIP:");
-    console.log("  Token address:", this.config.ghoTokenAddress.toString());
-    console.log("  Token addresses array:", [this.config.ghoTokenAddress.toString()]);
-    console.log("  Full functionArguments:", JSON.stringify(functionArguments, null, 2));
-
     // Send transaction and await response
     const response = await this.sendTxAndAwaitResponse(
       functionId,
@@ -358,45 +354,50 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
 
     // Extract CCIP message ID from events
     let ccipMessageId: string | undefined;
-    if ('events' in response && Array.isArray(response.events)) {
+    if ("events" in response && Array.isArray(response.events)) {
       for (const event of response.events) {
         // Look for CCIP send event - check multiple possible event type patterns
         const eventType = event.type.toLowerCase();
-        if (eventType.includes("ccipsend") || 
-            eventType.includes("ccip_send") || 
-            eventType.includes("sendrequest") ||
-            eventType.includes("router::") ||
-            eventType.includes("message")) {
-          
+        if (
+          eventType.includes("ccipsend") ||
+          eventType.includes("ccip_send") ||
+          eventType.includes("sendrequest") ||
+          eventType.includes("router::") ||
+          eventType.includes("message")
+        ) {
           // Try to extract message ID from event data - check multiple formats
           const eventData = event.data as any;
-          
+
           // Format 1: Nested in message.header.message_id (CCIPMessageSent event structure)
           if (eventData?.message?.header?.message_id) {
             ccipMessageId = eventData.message.header.message_id;
             break;
           }
-          
+
           // Format 2: Direct message_id field
           if (eventData?.message_id) {
             ccipMessageId = eventData.message_id;
             break;
           }
-          
+
           // Format 3: messageId field
           if (eventData?.messageId) {
             ccipMessageId = eventData.messageId;
             break;
           }
-          
+
           // Format 4: Nested in data object
           if (eventData?.data?.message_id) {
             ccipMessageId = eventData.data.message_id;
             break;
           }
-          
+
           // Format 5: Check if the entire event data is the message ID (32 bytes hex)
-          if (typeof eventData === 'string' && eventData.startsWith('0x') && eventData.length === 66) {
+          if (
+            typeof eventData === "string" &&
+            eventData.startsWith("0x") &&
+            eventData.length === 66
+          ) {
             ccipMessageId = eventData;
             break;
           }
@@ -407,9 +408,9 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
     // Build response with additional URLs
     const network = this.aptosProvider.getAptos().config.network;
     const explorerUrl = `https://explorer.aptoslabs.com/txn/${response.hash}?network=${network}`;
-    
+
     // Build CCIP tracker URL with message ID if available
-    const ccipTrackerUrl = ccipMessageId 
+    const ccipTrackerUrl = ccipMessageId
       ? `https://ccip.chain.link/msg/${ccipMessageId}`
       : `https://ccip.chain.link`;
 
@@ -423,7 +424,7 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
   /**
    * Validates bridge parameters before submission.
    * This is useful for frontend validation before submitting a transaction.
-   * 
+   *
    * @param params - Bridge parameters to validate.
    * @returns A promise that resolves to a validation result object containing:
    *   - isValid: boolean indicating if the bridge parameters are valid.
@@ -483,13 +484,13 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
   /**
    * Simulates a bridge transaction without submitting it to the blockchain.
    * Useful for estimating gas costs and validating parameters before execution.
-   * 
+   *
    * @param params - Bridge parameters to simulate.
    * @returns A promise that resolves to the simulation result from the Aptos SDK.
-   * 
+   *
    * @throws Error if the destination chain is not supported.
    * @throws Error if the receiver address is invalid.
-   * 
+   *
    * @remarks
    * Per CCIP documentation, token-only transfers should use gasLimit = 0.
    */
@@ -520,7 +521,8 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
     const txn = await this.aptosProvider.getAptos().transaction.build.simple({
       sender: this.signer.accountAddress,
       data: {
-        function: `${this.config.ccipRouterAddress.toString()}::router::ccip_send` as `${string}::${string}::${string}`,
+        function:
+          `${this.config.ccipRouterAddress.toString()}::router::ccip_send` as `${string}::${string}::${string}`,
         functionArguments: [
           chainSelector.toString(), // Chain selector as string
           Array.from(encodedReceiver), // Receiver as array
@@ -548,10 +550,10 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
   /**
    * Gets the GHO balance for a given user address.
    * This is useful for validating if a user has enough balance before bridging.
-   * 
+   *
    * @param userAddress - The address of the user whose balance to check.
    * @returns A promise that resolves to the user's GHO balance in smallest units.
-   * 
+   *
    * @throws Error if the balance query fails.
    */
   public async getGhoBalance(userAddress: AccountAddress): Promise<bigint> {
@@ -583,10 +585,10 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
   /**
    * Gets the APT balance for a given user address.
    * This is useful for checking if a user has enough APT to pay for transaction fees.
-   * 
+   *
    * @param userAddress - The address of the user whose balance to check.
    * @returns A promise that resolves to the user's APT balance in octas.
-   * 
+   *
    * @throws Error if the balance query fails.
    */
   public async getAptBalance(userAddress: AccountAddress): Promise<bigint> {
@@ -608,10 +610,10 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
 
   /**
    * Converts a human-readable GHO amount string to the smallest unit (6 decimals).
-   * 
+   *
    * @param amount - Amount in GHO as a string (e.g., "1.5" for 1.5 GHO).
    * @returns Amount in smallest units as bigint.
-   * 
+   *
    * @example
    * ```typescript
    * GhoBridgeClient.parseAmount("1.5")     // returns 1500000n
@@ -627,10 +629,10 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
 
   /**
    * Converts amount from smallest units back to human-readable format.
-   * 
+   *
    * @param amount - Amount in smallest units as bigint.
    * @returns Formatted string with up to 6 decimal places.
-   * 
+   *
    * @example
    * ```typescript
    * GhoBridgeClient.formatAmount(1500000n)  // returns "1.5"
@@ -642,20 +644,20 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
     const str = amount.toString().padStart(7, "0");
     const whole = str.slice(0, -6) || "0";
     let frac = str.slice(-6);
-    
+
     // Remove trailing zeros efficiently without regex to avoid ReDoS
     let endIndex = frac.length;
     while (endIndex > 0 && frac[endIndex - 1] === "0") {
       endIndex--;
     }
     frac = frac.slice(0, endIndex);
-    
+
     return frac ? `${whole}.${frac}` : whole;
   }
 
   /**
    * Gets the CCIP chain selector for a supported destination chain.
-   * 
+   *
    * @param chain - The destination chain enum value.
    * @param isMainnet - Whether to get mainnet selector (default: false for testnet).
    * @returns The CCIP chain selector as bigint.
@@ -672,11 +674,13 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
 
   /**
    * Gets all supported destination chains for bridging.
-   * 
+   *
    * @param isMainnet - Whether to get mainnet chains (default: false for testnet).
    * @returns Array of supported chain enum values.
    */
-  public static getSupportedChains(isMainnet: boolean = false): SupportedChain[] {
+  public static getSupportedChains(
+    isMainnet: boolean = false,
+  ): SupportedChain[] {
     return isMainnet
       ? Object.values(SupportedMainnetChain)
       : Object.values(SupportedTestnetChain);
@@ -684,7 +688,7 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
 
   /**
    * Gets the supported chains for the current instance based on its network.
-   * 
+   *
    * @returns Array of supported chain enum values for the current network.
    */
   public getSupportedChainsForNetwork(): SupportedChain[] {
@@ -693,7 +697,7 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
 
   /**
    * Gets the chain selector for a chain on the current network.
-   * 
+   *
    * @param chain - The destination chain enum value.
    * @returns The CCIP chain selector as bigint, or undefined if not supported.
    */
@@ -703,10 +707,10 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
 
   /**
    * Validates an EVM address format (20 bytes, 40 hex characters).
-   * 
+   *
    * @param address - EVM address to validate (with or without 0x prefix).
    * @returns true if the address is valid, false otherwise.
-   * 
+   *
    * @example
    * ```typescript
    * GhoBridgeClient.isValidEvmAddress("0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb")  // true
@@ -725,7 +729,7 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
 
   /**
    * Encodes CCIP extra arguments (V2 format).
-   * 
+   *
    * @param gasLimit - Gas limit for destination chain (0 for auto)
    * @param allowOutOfOrder - Whether to allow out-of-order execution
    * @returns Encoded bytes
@@ -761,7 +765,7 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
 
   /**
    * Pads an EVM address (20 bytes) to 32 bytes for CCIP.
-   * 
+   *
    * @param address - EVM address (with or without 0x prefix)
    * @returns 32-byte padded address
    * @throws Error if address is invalid
