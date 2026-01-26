@@ -23,6 +23,7 @@
         "update-version-patch": "pnpm run version patch",
         "test": "jest",
         "test:cov": "jest --coverage",
+        "test:bridge": "ts-node examples/test-bridge.ts",
         "lint": "eslint . --no-cache --ignore-pattern 'dist'",
         "lint:fix": "eslint . --fix --no-cache --ignore-pattern 'dist'",
         "prettier": "prettier --check .",
@@ -126,5 +127,6 @@
             "lodash@>=4.0.0 <=4.17.22": ">=4.17.23",
             "diff@<4.0.4": ">=4.0.4"
         }
-    }
+    },
+    "packageManager": "pnpm@10.28.0+sha512.05df71d1421f21399e053fde567cea34d446fa02c76571441bfc1c7956e98e363088982d940465fd34480d4d90a0668bc12362f8aa88000a64e83d0b0e47be48"
 }
