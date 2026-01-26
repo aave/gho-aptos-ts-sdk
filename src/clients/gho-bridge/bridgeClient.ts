@@ -641,7 +641,15 @@ export class GhoBridgeClient extends AptosContractWrapperBaseClass {
   public static formatAmount(amount: bigint): string {
     const str = amount.toString().padStart(7, "0");
     const whole = str.slice(0, -6) || "0";
-    const frac = str.slice(-6).replace(/0+$/, "");
+    let frac = str.slice(-6);
+    
+    // Remove trailing zeros efficiently without regex to avoid ReDoS
+    let endIndex = frac.length;
+    while (endIndex > 0 && frac[endIndex - 1] === "0") {
+      endIndex--;
+    }
+    frac = frac.slice(0, endIndex);
+    
     return frac ? `${whole}.${frac}` : whole;
   }
 
