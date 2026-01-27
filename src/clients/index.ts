@@ -89,3 +89,14 @@ export {
   RemoteMapping,
   AllowlistState,
 } from "./gho-ccip/ghoBurnMintTokenPoolClient";
+
+export {
+  GhoBridgeClient,
+  SupportedChain,
+  SupportedTestnetChain,
+  SupportedMainnetChain,
+  BridgeConfig,
+  BridgeParams,
+  BridgeResponse,
+  BridgeValidationResult,
+} from "./gho-bridge/bridgeClient";
