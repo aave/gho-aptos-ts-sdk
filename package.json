@@ -1,6 +1,7 @@
 {
     "name": "@aave/gho-aptos-ts-sdk",
     "version": "0.0.7",
+    "packageManager": "pnpm@10.28.0",
     "description": "Aave's typescript sdk for GHO on Aptos",
     "main": "dist/cmd/index.js",
     "module": "dist/esm/index.js",
