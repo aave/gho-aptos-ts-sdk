@@ -1,6 +1,7 @@
 export {
   GhoProvider as AptosProvider,
   GhoProviderConfig as AptosProviderConfig,
+  GhoProviderType as AptosProviderType,
   AptosAccountConfig,
   GHO_PROFILES,
 } from "./aptosProvider";

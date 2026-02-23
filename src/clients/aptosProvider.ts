@@ -11,13 +11,32 @@ import {
 } from "@aptos-labs/ts-sdk";
 import YAML from "yaml";
 
+export enum GhoProviderType {
+  APTOS = "APTOS",
+  ALCHEMY = "ALCHEMY",
+}
+
+const ALCHEMY_FULL_NODE_URLS: Partial<Record<Network, string>> = {
+  [Network.MAINNET]: "https://aptos-mainnet.g.alchemy.com/v2",
+  [Network.TESTNET]: "https://aptos-testnet.g.alchemy.com/v2",
+};
+
+const alchemyFullNodeUrl = (network: Network, apiKey: string): string => {
+  const baseUrl = ALCHEMY_FULL_NODE_URLS[network];
+  if (!baseUrl) {
+    throw new Error(`Alchemy is not supported for network: ${network}`);
+  }
+  return `${baseUrl}/${apiKey}/v1`;
+};
+
 /**
  * Configuration interface for the GhoProvider.
  *
  * @interface GhoProviderConfig
  *
  * @property {Network} network - The network configuration for the GhoProvider.
- * @property {string} aptosApiKey - The aptos api key.
+ * @property {GhoProviderType} providerType - The provider type (e.g., APTOS, ALCHEMY).
+ * @property {string} apiKey - The API key for the provider.
  * @property {Object} addresses - The contract addresses used by the GhoProvider.
  * @property {string} addresses.GHO - The address for GHO token module.
  * @property {string} addresses.GHO_ACL - The address for GHO ACL.
@@ -27,7 +46,8 @@ import YAML from "yaml";
  */
 export interface GhoProviderConfig {
   network: Network;
-  aptosApiKey?: string;
+  providerType: GhoProviderType;
+  apiKey?: string;
   addresses: {
     GHO: AccountAddress;
     GHO_ACL: AccountAddress;
@@ -38,7 +58,7 @@ export interface GhoProviderConfig {
     GHO_DIRECT_MINTER: AccountAddress;
     GHO_CCIP_TOKEN_POOL: AccountAddress;
   };
-  assets?: {
+  assets: {
     GHO_TOKEN: AccountAddress;
     USDC: AccountAddress;
     USDT: AccountAddress;
@@ -102,8 +122,34 @@ export class GhoProvider {
   private profileAccountMap = new Map<string, Ed25519PrivateKey>();
 
   private aptos: Aptos;
+  private ghoProviderType: GhoProviderType;
 
   private constructor() {}
+
+  private static buildAptosConfig(
+    network: Network,
+    providerType: GhoProviderType,
+    apiKey?: string,
+  ): AptosConfig {
+    switch (providerType) {
+      case GhoProviderType.APTOS:
+        return new AptosConfig({
+          network,
+          clientConfig: {
+            ...(apiKey && { API_KEY: apiKey }),
+          },
+        });
+      case GhoProviderType.ALCHEMY: {
+        if (!apiKey) {
+          throw new Error("API key is required for Alchemy provider");
+        }
+        return new AptosConfig({
+          network,
+          fullnode: alchemyFullNodeUrl(network, apiKey),
+        });
+      }
+    }
+  }
 
   /**
    * Sets the network for the GHO provider.
@@ -144,6 +190,15 @@ export class GhoProvider {
   }
 
   /**
+   * Sets the provider type for the GHO provider.
+   *
+   * @param ghoProviderType - The provider type to set.
+   */
+  public setProviderType(ghoProviderType: GhoProviderType) {
+    this.ghoProviderType = ghoProviderType;
+  }
+
+  /**
    * Creates an instance of `GhoProvider` from the given configuration.
    *
    * @param config - The configuration object for the `GhoProvider`.
@@ -175,18 +230,13 @@ export class GhoProvider {
       GHO_PROFILES.GHO_CONFIG,
       config.addresses.GHO_CONFIG,
     );
-    const aptosConfig = new AptosConfig({
-      network: ghoProvider.getNetwork(),
-      clientConfig: {
-        ...(process.env.APTOS_API_KEY && {
-          API_KEY: process.env.APTOS_API_KEY,
-        }),
-        ...(config.aptosApiKey && {
-          API_KEY: config.aptosApiKey,
-        }),
-      },
-    });
+    const aptosConfig = GhoProvider.buildAptosConfig(
+      ghoProvider.getNetwork(),
+      config.providerType,
+      config.apiKey,
+    );
     ghoProvider.setAptos(aptosConfig);
+    ghoProvider.setProviderType(config.providerType);
     return ghoProvider;
   }
 
@@ -434,15 +484,16 @@ export class GhoProvider {
       process.env.TEST_ACCOUNT_5_PRIVATE_KEY,
     );
 
-    const aptosConfig = new AptosConfig({
-      network: ghoProvider.getNetwork(),
-      clientConfig: {
-        ...(process.env.APTOS_API_KEY && {
-          API_KEY: process.env.APTOS_API_KEY,
-        }),
-      },
-    });
+    const providerType =
+      (process.env.APTOS_PROVIDER_TYPE as GhoProviderType) ||
+      GhoProviderType.APTOS;
+    const aptosConfig = GhoProvider.buildAptosConfig(
+      ghoProvider.getNetwork(),
+      providerType,
+      process.env.APTOS_API_KEY,
+    );
     ghoProvider.setAptos(aptosConfig);
+    ghoProvider.setProviderType(providerType);
     return ghoProvider;
   }
 
@@ -457,7 +508,11 @@ export class GhoProvider {
    * @returns An instance of `GhoProvider` configured based on the provided YAML.
    * @throws Will throw an error if an unknown network is specified in the profile configuration.
    */
-  public static fromAptosYaml(aptosYaml: string): GhoProvider {
+  public static fromAptosYaml(
+    aptosYaml: string,
+    providerType: GhoProviderType = GhoProviderType.APTOS,
+    apiKey?: string,
+  ): GhoProvider {
     let ghoProvider = new GhoProvider();
     const parsedYaml = YAML.parse(aptosYaml);
     for (const profile of Object.keys(parsedYaml.profiles)) {
@@ -499,10 +554,13 @@ export class GhoProvider {
       });
       ghoProvider.addProfileAddress(profile, profileAccount.accountAddress);
     }
-    const aptosConfig = new AptosConfig({
-      network: ghoProvider.getNetwork(),
-    });
+    const aptosConfig = GhoProvider.buildAptosConfig(
+      ghoProvider.getNetwork(),
+      providerType,
+      apiKey,
+    );
     ghoProvider.setAptos(aptosConfig);
+    ghoProvider.setProviderType(providerType);
     return ghoProvider;
   }
 

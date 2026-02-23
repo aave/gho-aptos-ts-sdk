@@ -117,7 +117,7 @@ async function main() {
     console.log(`[SUCCESS] APT balance sufficient for fees`);
   } catch (error) {
     console.error(
-      `\n[WARNING] Fee estimation failed (will use default): ${error.message}`,
+      `\n[WARNING] Fee estimation failed (will use default): ${error instanceof Error ? error.message : String(error)}`,
     );
   }
 
@@ -138,7 +138,9 @@ async function main() {
       `   Available: ${GhoBridgeClient.formatAmount(validation.ghoBalance)} GHO`,
     );
   } catch (error) {
-    console.error(`\n[ERROR] Validation failed: ${error.message}`);
+    console.error(
+      `\n[ERROR] Validation failed: ${error instanceof Error ? error.message : String(error)}`,
+    );
     process.exit(1);
   }
 
@@ -160,7 +162,9 @@ async function main() {
     console.log(`   Gas used: ${simulation.gas_used}`);
     console.log(`   Status: ${simulation.vm_status}`);
   } catch (error) {
-    console.error(`\n[ERROR] Simulation error: ${error.message}`);
+    console.error(
+      `\n[ERROR] Simulation error: ${error instanceof Error ? error.message : String(error)}`,
+    );
     process.exit(1);
   }
 
@@ -273,7 +277,9 @@ async function main() {
 
     console.log("\n[SUCCESS] Bridge test completed successfully!\n");
   } catch (error) {
-    console.error(`\n[ERROR] Bridge transaction failed: ${error.message}`);
+    console.error(
+      `\n[ERROR] Bridge transaction failed: ${error instanceof Error ? error.message : String(error)}`,
+    );
     console.error(error);
     process.exit(1);
   }

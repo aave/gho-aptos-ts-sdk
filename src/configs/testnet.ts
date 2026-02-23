@@ -1,6 +1,6 @@
 import { AccountAddress, Network } from "@aptos-labs/ts-sdk";
 
-import { GhoProviderConfig } from "../clients/aptosProvider";
+import { GhoProviderConfig, GhoProviderType } from "../clients/aptosProvider";
 
 /**
  * Configuration object for the GHO Testnet on Aptos.
@@ -24,6 +24,10 @@ import { GhoProviderConfig } from "../clients/aptosProvider";
  */
 export const DEFAULT_TESTNET_CONFIG: GhoProviderConfig = {
   network: Network.TESTNET,
+  providerType:
+    (process.env.APTOS_PROVIDER_TYPE as GhoProviderType) ||
+    GhoProviderType.APTOS,
+  apiKey: process.env.APTOS_API_KEY,
   addresses: {
     GHO: AccountAddress.fromString(
       "0xbeb022c05921bfcead4ca06b6d6192ad1cdcecf815585b070f2ab90f9acedcf4",
@@ -61,5 +65,4 @@ export const DEFAULT_TESTNET_CONFIG: GhoProviderConfig = {
       "0xd5d0d561493ea2b9410f67da804653ae44e793c2423707d4f11edb2e38192050",
     ),
   },
-  aptosApiKey: process.env.NODE_API_KEY,
 };
